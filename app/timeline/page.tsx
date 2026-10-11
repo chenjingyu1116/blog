@@ -12,7 +12,9 @@ export const metadata = {
 };
 
 function isPublished(data: any) {
-  return data.published !== false && data.draft !== true;
+  return data.published !== false
+    && data.draft !== true
+    && (!data.publishAt || new Date(data.publishAt) <= new Date());
 }
 
 export default function Timeline() {
@@ -31,7 +33,7 @@ export default function Timeline() {
         const fileContents = fs.readFileSync(fullPath, 'utf8');
         const { data } = matter(fileContents);
 
-        // ⭐ 草稿不显示，标签也不统计
+        // ⭐ 草稿 / 定时未到 不显示，标签也不统计
         if (!isPublished(data)) return;
 
         const postTags = data.tags && Array.isArray(data.tags) ? data.tags : ['未分类'];

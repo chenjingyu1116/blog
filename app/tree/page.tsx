@@ -4,9 +4,11 @@ import matter from 'gray-matter';
 
 import CreativeWorkshopClient from './CreativeWorkshopClient';
 
-// ⭐ 统一判断"是否已发布"
+// ⭐ 统一判断"是否已发布"（含定时发布判断）
 function isPublished(data: any) {
-  return data.published !== false && data.draft !== true;
+  return data.published !== false
+    && data.draft !== true
+    && (!data.publishAt || new Date(data.publishAt) <= new Date());
 }
 
 function getLocalItems(directoryName: string, typeName: string) {
@@ -20,7 +22,7 @@ function getLocalItems(directoryName: string, typeName: string) {
           const fullPath = path.join(dirPath, fileName);
           const { data, content } = matter(fs.readFileSync(fullPath, 'utf8'));
 
-          // ⭐ 草稿不进星际战舰
+          // ⭐ 草稿 / 定时未到 不进星际战舰
           if (!isPublished(data)) return null;
 
           const realSlug = fileName.replace(/\.md$/, '');

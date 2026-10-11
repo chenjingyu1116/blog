@@ -26,7 +26,7 @@
 | 灵境 | `/tree` | Three.js 粒子飞船互动页 |
 | 关于 | `/about` | 个人介绍 + 时间线活动 |
 
-### 🧰 工具箱（14 个工具）
+### 🧰 工具箱（18 个工具）
 
 | 工具 | 路径 | 分类 |
 |---|---|---|
@@ -44,10 +44,14 @@
 | URL 编解码 | `/tools/url` | 开发 |
 | 哈希计算 | `/tools/hash` | 安全 |
 | 进制转换 | `/tools/radix` | 开发 |
+| 正则测试 | `/tools/regex` | 开发 |
+| Lorem Ipsum | `/tools/lorem` | 文本 |
+| 房贷计算器 | `/tools/loan` | 实用 |
+| 字数统计 | `/tools/wordcount` | 文本 |
 
 支持**实时搜索** + **分类过滤**。
 
-### 🔐 后台管理系统（13 个模块）
+### 🔐 后台管理系统（14 个模块）
 
 路径：`/admin`（需登录）
 
@@ -63,18 +67,25 @@
 | 工具管理 | `/admin/tools` | 工具增删改查、开关、排序 |
 | 短链管理 | `/admin/shortlinks` | 查看点击次数、删除 |
 | 图床管理 | `/admin/uploads` | 预览、复制链接、批量删除 |
-| 站点设置 | `/admin/site` | 全站信息可视化编辑（4 个 Tab） |
+| 站点设置 | `/admin/site` | 全站信息可视化编辑（5 个 Tab） |
 | 访问统计 | `/admin/stats` | PV / UV / 每日趋势 / 文章阅读量 TOP 20 |
 | 数据备份 | `/admin/backup` | 一键导出所有文章和配置为 JSON |
 
 **仪表盘亮点：**
 - 8 项数据卡片（文章 / 说说 / 杂谈 / 相册 / 友链 / 工具 / 短链 / 访问量）
 - 悬停上浮 + 渐变光晕动画
-- 6 个快捷操作入口（写文章 / 发说说 / 写杂谈 / 传图片 / 工具管理 / 站点设置）
+- 6 个快捷操作入口
 - 文章 + 说说 + 杂谈按时间混排的「最近动态」
 - 欢迎语实时显示今日 PV
 
-**安全机制：** JWT + HttpOnly Cookie，密码 bcrypt 加密。
+**站点设置（5 个 Tab）：**
+- 基础信息（标题、作者、简介、导航文案、建站日期）
+- 图片资源（favicon、头像、默认封面、背景图）
+- 社交链接（GitHub、Gitee、邮箱、QQ、微信、音乐 ID、ICP）
+- **导航菜单**（可视化增删改菜单项、开关、排序）
+- 高级（弹幕列表、友链申请格式、Gitalk）
+
+**安全机制：** JWT + HttpOnly Cookie，密码 bcrypt 加密，后台接口全部走 `middleware.ts` 鉴权。
 
 ### 🎨 主题与交互
 
@@ -89,6 +100,8 @@
 - 草稿在前台**完全不可见**（9 个前台页面统一过滤）
 - 直接访问草稿 URL → 404
 - 后台可控每篇文章的发布状态
+- **中文文件名兼容**：文件查找用归一化 + 遍历对比，避免编码问题
+- **新文章自动用英文文件名**：彻底避开中文 URL 编码陷阱
 
 ---
 
@@ -125,7 +138,7 @@ XHBlogs/
 │   ├── about/                  # 关于
 │   ├── posts/                  # 文章
 │   │   ├── page.tsx
-│   │   └── [slug]/page.tsx     # 详情（挂 PostViewTracker）
+│   │   └── [slug]/page.tsx     # 详情（force-dynamic）
 │   ├── chatter/                # 杂谈
 │   ├── moments/                # 说说
 │   ├── timeline/               # 归档
@@ -136,14 +149,15 @@ XHBlogs/
 │   │
 │   ├── tools/                  # 工具箱
 │   │   ├── page.tsx
-│   │   ├── json/  color/  time/  password/
-│   │   ├── base64/  diff/  qrcode/  image/
-│   │   ├── short/  upload/  uuid/  url/
-│   │   └── hash/  radix/
+│   │   ├── json/ color/ time/ password/
+│   │   ├── base64/ diff/ qrcode/ image/
+│   │   ├── short/ upload/ uuid/ url/
+│   │   ├── hash/ radix/ regex/ lorem/
+│   │   └── loan/ wordcount/
 │   │
 │   ├── admin/                  # 后台
 │   │   ├── layout.tsx
-│   │   ├── page.tsx            # 仪表盘（8 卡片 + 快捷操作 + 最近动态）
+│   │   ├── page.tsx            # 仪表盘
 │   │   ├── login/
 │   │   ├── posts/              # 文章管理
 │   │   ├── moments/            # 说说管理
@@ -186,7 +200,7 @@ XHBlogs/
 │
 ├── lib/
 │   ├── auth.ts                 # JWT 鉴权
-│   ├── posts.ts                # 文章读写
+│   ├── posts.ts                # 文章读写（含中文文件名兼容）
 │   ├── tools.ts                # 工具配置
 │   ├── shortlinks.ts           # 短链数据
 │   ├── admin-data.ts           # 相册 + 友链读写
@@ -195,10 +209,10 @@ XHBlogs/
 │   └── analytics.ts            # 访问统计
 │
 ├── data/
-│   ├── site.json               # 站点设置（后台管理）
-│   ├── albums.ts               # 相册数据（后台管理）
-│   ├── friends.ts              # 友链数据（后台管理）
-│   ├── tools.json              # 工具配置（后台管理）
+│   ├── site.json               # 站点设置（含 navLinks 导航菜单）
+│   ├── albums.ts               # 相册数据
+│   ├── friends.ts              # 友链数据
+│   ├── tools.json              # 工具配置
 │   ├── shortlinks.json         # 短链数据
 │   └── analytics.json          # 访问统计（gitignore）
 │
@@ -280,6 +294,8 @@ npm run dev
 5. 取消勾选「发布」→ 保存为草稿（前台看不到）
 6. 勾选「发布」→ 前台立即可见
 
+> 💡 **文件名规则**：新文章会自动生成纯英文文件名（如 `my-post-xxx.md`），避免中文 URL 编码问题。文章的标题、显示内容完全按你写的来。
+
 ### 管理说说 / 杂谈
 
 1. 进入 `/admin/moments` 或 `/admin/chatter`
@@ -296,11 +312,12 @@ npm run dev
 ### 站点设置
 
 1. 进入 `/admin/site`
-2. 4 个 Tab：
+2. 5 个 Tab：
    - **基础信息**：标题、作者、简介、导航文案
    - **图片资源**：favicon、头像、封面、背景图
    - **社交链接**：GitHub、Gitee、邮箱、QQ、微信、音乐 ID
-   - **高级**：弹幕列表、友链申请格式、Gitalk 配置
+   - **导航菜单**：可视化增删改菜单项、开关、排序
+   - **高级**：弹幕列表、友链申请格式、Gitalk
 3. 点「保存全部」→ 前台立即生效
 
 ### 添加工具
@@ -352,6 +369,14 @@ GitHub 国内偶尔连不上。解决方案：
 2. 手机开热点给电脑
 3. 使用代理
 
+### 如果 push 被拒绝
+
+远程有 Vercel 自动同步的提交。强制推送：
+
+```powershell
+git push origin main --force
+```
+
 ---
 
 ## 📦 部署
@@ -381,7 +406,7 @@ GitHub 国内偶尔连不上。解决方案：
 git clone https://github.com/chenjingyu1116/blog.git
 cd blog/XHBlogs
 
-# 创建 .env.production（内容同 .env.local，NODE_ENV=production）
+# 创建 .env.production（内容同 .env.local）
 npm install
 npm run build
 
@@ -425,11 +450,6 @@ HTTPS：使用 `certbot` 一键申请 Let's Encrypt 证书。
 3. 等待 7-20 个工作日审核
 4. 审核通过后，域名才能在大陆正常解析
 
-**备案期间**：
-
-- 使用 Vercel 免费域名 `blog-yu-jiamgy1.vercel.app`
-- 或绑定**香港 / 海外**服务器（无需备案）
-
 **备案通过后**：
 
 1. 部署到 ECS，配置 Nginx 反向代理
@@ -452,14 +472,15 @@ HTTPS：使用 `certbot` 一键申请 Let's Encrypt 证书。
 ## 🗺️ Roadmap
 
 - [x] 博客系统（文章 / 说说 / 杂谈 / 归档）
-- [x] 后台管理系统（13 个模块）
-- [x] 工具箱（14 个工具）
+- [x] 后台管理系统（14 个模块）
+- [x] 工具箱（18 个工具）
 - [x] 草稿过滤 + 数据备份
-- [x] 站点设置可视化
+- [x] 站点设置可视化（含导航菜单）
 - [x] 访问统计 + 文章阅读量
 - [x] 仪表盘升级（8 卡片 + 快捷操作 + 混合动态）
+- [x] 中文文件名兼容（遍历对比 + 归一化）
 - [ ] 评论系统集成
-- [ ] 更多工具（正则测试、Lorem Ipsum 等）
+- [ ] 多用户管理
 - [ ] 部署到自建服务器
 - [ ] 自定义域名 `idcan.top` 备案通过并绑定
 

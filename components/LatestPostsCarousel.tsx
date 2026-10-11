@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { siteConfig } from '../siteConfig';
 
 export default function LatestPostsCarousel({ posts }: { posts: any[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -13,13 +14,17 @@ export default function LatestPostsCarousel({ posts }: { posts: any[] }) {
     if (posts.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % posts.length);
-    }, 5000); // 5秒切换一次
+    }, 5000);
     return () => clearInterval(timer);
   }, [posts.length]);
 
   if (!posts || posts.length === 0) return null;
 
   const currentPost = posts[currentIndex];
+  // ⭐ 封面兜底：空字符串或 undefined 时使用默认封面
+  const coverSrc = currentPost.cover && currentPost.cover.trim() !== ''
+    ? currentPost.cover
+    : siteConfig.defaultPostCover;
 
   return (
     <div className="md:col-span-4 rounded-3xl bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl overflow-hidden relative group min-h-[420px] h-full flex flex-col">
@@ -37,7 +42,11 @@ export default function LatestPostsCarousel({ posts }: { posts: any[] }) {
           transition={{ duration: 0.8 }}
           className="absolute inset-0 z-0"
         >
-          <img src={currentPost.cover} className="w-full h-full object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105" alt={currentPost.title} />
+          <img
+            src={coverSrc}
+            className="w-full h-full object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105"
+            alt={currentPost.title}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
         </motion.div>
       </AnimatePresence>
@@ -56,14 +65,14 @@ export default function LatestPostsCarousel({ posts }: { posts: any[] }) {
         <p className="text-sm text-gray-300 line-clamp-3 drop-shadow-sm mb-6">{currentPost.description}</p>
       </div>
 
-      {/* 底部导航小圆点 (放在可点击的 Link 层之上) */}
+      {/* 底部导航小圆点 */}
       {posts.length > 1 && (
         <div className="absolute bottom-4 right-6 z-30 flex gap-2">
           {posts.map((_, i) => (
             <button
               key={i}
               onClick={(e) => {
-                e.stopPropagation(); // 阻止触发父级的外层跳转
+                e.stopPropagation();
                 setCurrentIndex(i);
               }}
               className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-6 bg-indigo-400' : 'w-2 bg-white/40 hover:bg-white/80'}`}

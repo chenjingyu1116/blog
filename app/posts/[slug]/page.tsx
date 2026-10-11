@@ -24,31 +24,9 @@ import BackButton from '../../../components/BackButton';
 import Comments from '../../../components/Comments';
 import SidebarLyric from '../../../components/SidebarLyric';
 import PostViewTracker from '../../../components/PostViewTracker';
+import { getPost } from '../../../lib/posts';
 
-function isPublished(data: any) {
-  return data.published !== false && data.draft !== true;
-}
-
-export async function generateStaticParams() {
-  const postsDirectory = path.join(process.cwd(), 'posts');
-  if (!fs.existsSync(postsDirectory)) return [];
-
-  const filenames = fs.readdirSync(postsDirectory);
-
-  return filenames
-    .filter((name) => name.endsWith('.md'))
-    .filter((name) => {
-      try {
-        const { data } = matter(fs.readFileSync(path.join(postsDirectory, name), 'utf8'));
-        return isPublished(data);
-      } catch {
-        return false;
-      }
-    })
-    .map((name) => ({
-      slug: name.replace(/\.md$/, ''),
-    }));
-}
+export const dynamic = 'force-dynamic';
 
 function extractToc(content: string) {
   const headingRegex = /^(#{1,3})\s+(.+)$/gm;
@@ -65,20 +43,18 @@ function extractToc(content: string) {
 }
 
 async function getPostData(slug: string) {
-  const fullPath = path.join(process.cwd(), 'posts', `${slug}.md`);
+  const post = await getPost(slug);
+  if (!post) notFound();
+  if (!post.published) notFound();
 
-  let fileContents: string;
-  try {
-    fileContents = fs.readFileSync(fullPath, 'utf8');
-  } catch {
-    notFound();
-  }
+  const data = {
+    title: post.title,
+    date: post.date,
+    tags: post.tags || [],
+    cover: post.cover,
+  };
 
-  let { data, content } = matter(fileContents);
-
-  if (!isPublished(data)) {
-    notFound();
-  }
+  let content = post.content;
 
   content = content.replace(/^(\s*\d+)\.([^ \n])/gm, '$1. $2');
   content = content.replace(/\r\n/g, '\n').replace(/^[ \t]+$/gm, '');
@@ -108,13 +84,13 @@ async function getPostData(slug: string) {
     .process(content);
 
   return {
-    slug,
+    slug: post.id,
     contentHtml: processedContent.toString(),
     toc: extractToc(content),
     title: data.title,
     date: data.date,
-    tags: data.tags && Array.isArray(data.tags) ? data.tags : [],
-    cover: data.cover || siteConfig.defaultPostCover
+    tags: data.tags,
+    cover: data.cover || siteConfig.defaultPostCover,
   };
 }
 
@@ -139,11 +115,11 @@ function getRecentPosts(currentSlug: string) {
 export default async function Post({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const postData = await getPostData(resolvedParams.slug);
-  const recentPosts = getRecentPosts(resolvedParams.slug);
+  const recentPosts = getRecentPosts(postData.slug);
 
   return (
     <div className="min-h-screen relative pb-20">
-      <PostViewTracker slug={resolvedParams.slug} />
+      <PostViewTracker slug={postData.slug} />
       <Navbar />
       <PageTransition>
         <main className="w-[95%] md:w-[90%] max-w-6xl mx-auto mt-24 md:mt-28 flex flex-col lg:flex-row gap-6 md:gap-8 relative z-10">

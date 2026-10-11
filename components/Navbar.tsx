@@ -6,6 +6,27 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, PanInfo } from 'framer-motion';
 import { siteConfig } from '../siteConfig';
 
+// 默认菜单（当 siteConfig.navLinks 不存在时使用）
+const DEFAULT_NAV_LINKS = [
+  { name: '首页', href: '/', enabled: true },
+  { name: '项目', href: '/projects', enabled: true },
+  { name: '工具', href: '/tools', enabled: true },
+  { name: '归档', href: '/timeline', enabled: true },
+  { name: '照片墙', href: '/photowall', enabled: true },
+  { name: '音乐', href: '/music', enabled: true },
+  { name: '灵境', href: '/tree', enabled: true },
+  { name: '说说', href: '/moments', enabled: true },
+  { name: '杂谈', href: '/chatter', enabled: true },
+  { name: '友链', href: '/friends', enabled: true },
+  { name: '关于', href: '/about', enabled: true },
+];
+
+interface NavLink {
+  name: string;
+  href: string;
+  enabled?: boolean;
+}
+
 export default function Navbar() {
   const [showNav, setShowNav] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -68,21 +89,14 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  const navLinks = [
-    { name: '首页', href: '/' },
-    { name: '项目', href: '/projects' },
-	//{ name: '工具', href: '/tools' },
-    { name: '归档', href: '/timeline' },
-    { name: '照片墙', href: '/photowall' },
-    { name: '音乐', href: '/music' },
-    { name: '灵境', href: '/tree' },
-    { name: '说说', href: '/moments' },
-    { name: '杂谈', href: '/chatter' },
-    { name: '友链', href: '/friends' },
-    { name: '关于', href: '/about' },
-  ];
+  // 🌟 从 siteConfig 读菜单（如果后台没配置，用默认）
+  const rawLinks: NavLink[] = (siteConfig as any).navLinks && Array.isArray((siteConfig as any).navLinks) && (siteConfig as any).navLinks.length > 0
+    ? (siteConfig as any).navLinks
+    : DEFAULT_NAV_LINKS;
 
-  // 🌟 核心：过滤掉“灵境”，专供手机端使用，保证圆盘自动重新均匀排布
+  const navLinks = rawLinks.filter(l => l.enabled !== false);
+
+  // 🌟 手机端过滤掉"灵境"，保证圆盘自动重新均匀排布
   const mobileNavLinks = navLinks.filter(link => link.href !== '/tree');
 
   return (
@@ -96,7 +110,6 @@ export default function Navbar() {
             {siteConfig.navAfter || '宝藏之地'}
           </Link>
           <nav className="flex gap-8 text-sm font-bold">
-            {/* PC端依然使用全量的 navLinks */}
             {navLinks.map((link) => {
               const isActive = pathname === link.href || pathname === `${link.href}/`;
               return (
@@ -163,10 +176,8 @@ export default function Navbar() {
                     </button>
                   </div>
 
-                  {/* 🌟 手机端轮盘渲染：使用过滤后的 mobileNavLinks */}
                   {mobileNavLinks.map((link, index) => {
                     const isActive = pathname === link.href || pathname === `${link.href}/`;
-                    // 🌟 角度计算也会基于过滤后的长度，保证图标自动均匀排布！
                     const angle = index * (360 / mobileNavLinks.length);
 
                     return (

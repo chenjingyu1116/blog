@@ -49,12 +49,13 @@ export default function Home() {
           ...data,
           title: data.title || '',
           description: data.description || '',
+          cover: data.cover || siteConfig.defaultPostCover,   // ⭐ 封面兜底
           content: content || '',
           date: rawDate,
           formattedDate: formatUpdateTime(rawDate)
         };
       })
-      .filter((p: any) => p.published !== false && p.draft !== true)
+      .filter((p: any) => p.published !== false && p.draft !== true && (!p.publishAt || new Date(p.publishAt) <= new Date()))
       .sort((a, b) => {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
@@ -77,7 +78,7 @@ export default function Home() {
         const cover = data.cover || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop';
         return { slug: fileName.replace(/\.md$/, ''), title: data.title || '碎片记录', description: data.description || content.substring(0, 60), cover: cover, date: rawDate, formattedDate: formatUpdateTime(rawDate) };
       })
-      .filter((p: any) => p.published !== false && p.draft !== true)
+      .filter((p: any) => p.published !== false && p.draft !== true && (!p.publishAt || new Date(p.publishAt) <= new Date()))
       .sort((a, b) => {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
@@ -143,11 +144,9 @@ export default function Home() {
 
               {/* 第一行：个人信息 + 播放器 */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
-                {/* 手机上占满1列，电脑上占7列 */}
                 <div className="col-span-1 lg:col-span-7 flex flex-col">
                     <ProfileCard postCount={allPosts.length} chatterCount={chatterCount} photoCount={realPhotoCount}/>
                 </div>
-                {/* 手机上占满1列，电脑上占5列 */}
                 <div className="col-span-1 lg:col-span-5 flex flex-col">
                     <CloudPlayer/>
                 </div>
@@ -159,12 +158,12 @@ export default function Home() {
               {/* 第二行：文章轮播 + 照片墙 + 说说 + 主题切换 */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
 
-                {/* 左侧：文章轮播 (电脑端占4列，手机端排最上面) */}
+                {/* 左侧：文章轮播 */}
                 <div className="col-span-1 lg:col-span-4 flex flex-col min-h-[300px]">
                   <LatestPostsCarousel posts={top5Posts} />
                 </div>
 
-                {/* 右侧：组合面板 (电脑端占8列) */}
+                {/* 右侧：组合面板 */}
                 <div className="col-span-1 lg:col-span-8 flex flex-col gap-6">
 
                   {/* 照片墙大海报 */}
@@ -178,7 +177,6 @@ export default function Home() {
                   </Link>
 
                   {/* 底层网格：说说轮播 + 主题切换器 */}
-                  {/* 手机上单列，平板上分3列比例分布 */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full flex-1">
                     <div className="sm:col-span-2 flex flex-col min-h-[200px]">
                       <LatestChatterCarousel chatters={top5Chatters} />

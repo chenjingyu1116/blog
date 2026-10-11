@@ -124,5 +124,41 @@
     "desc": "",
     "category": "开发",
     "enabled": true
+  },
+  {
+    "id": "regex",
+    "name": "正则测试",
+    "path": "/tools/regex",
+    "icon": "🔍",
+    "desc": "",
+    "category": "开发",
+    "enabled": true
+  },
+  {
+    "id": "lorem",
+    "name": "Lorem Ipsum",
+    "path": "/tools/lorem",
+    "icon": "📄",
+    "desc": "",
+    "category": "文本",
+    "enabled": true
+  },
+  {
+    "id": "loan",
+    "name": "房贷计算器",
+    "path": "/tools/loan",
+    "icon": "🏠",
+    "desc": "",
+    "category": "实用",
+    "enabled": true
+  },
+  {
+    "id": "wordcount",
+    "name": "字数统计",
+    "path": "/tools/wordcount",
+    "icon": "🔢",
+    "desc": "",
+    "category": "文本",
+    "enabled": true
   }
 ]

@@ -91,5 +91,62 @@
     "temperature": 0.85
   },
   "friendLinkApplyFormat": "名称：XingHuiSamaの宝藏之地\n简介：今天我也要学习吗\n链接：https://www.xinghuisama.top\n头像：https://bu.dusays.com/2026/03/24/69c1e38ac1846.jpg",
-  "enableLevelSystem": true
+  "enableLevelSystem": true,
+  "navLinks": [
+    {
+      "name": "主页",
+      "href": "/",
+      "enabled": true
+    },
+    {
+      "name": "项目",
+      "href": "/projects",
+      "enabled": true
+    },
+    {
+      "name": "工具",
+      "href": "/tools",
+      "enabled": true
+    },
+    {
+      "name": "归档",
+      "href": "/timeline",
+      "enabled": true
+    },
+    {
+      "name": "照片墙",
+      "href": "/photowall",
+      "enabled": true
+    },
+    {
+      "name": "音乐",
+      "href": "/music",
+      "enabled": true
+    },
+    {
+      "name": "灵境",
+      "href": "/tree",
+      "enabled": true
+    },
+    {
+      "name": "说说",
+      "href": "/moments",
+      "enabled": true
+    },
+    {
+      "name": "杂谈",
+      "href": "/chatter",
+      "enabled": true
+    },
+    {
+      "name": "友链",
+      "href": "/friends",
+      "enabled": true
+    },
+    {
+      "name": "关于",
+      "href": "/about",
+      "enabled": true
+    }
+  ]
 }

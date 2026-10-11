@@ -7,7 +7,14 @@ const DRAFT_KEY = 'xh-post-draft';
 
 interface Props {
   id?: string;
-  initial?: { title: string; content: string; excerpt?: string; tags?: string[]; cover?: string; published: boolean; };
+  initial?: {
+    title: string;
+    content: string;
+    excerpt?: string;
+    tags?: string[];
+    cover?: string;
+    published: boolean;
+  };
 }
 
 export default function PostEditor({ id, initial }: Props) {
@@ -29,7 +36,9 @@ export default function PostEditor({ id, initial }: Props) {
     if (id) return;
     const t = setInterval(() => {
       if (title || content) {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, content, excerpt, tags, cover, published, ts: Date.now() }));
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          title, content, excerpt, tags, cover, published, ts: Date.now(),
+        }));
         setLastSaved(new Date());
       }
     }, 3000);
@@ -56,9 +65,15 @@ export default function PostEditor({ id, initial }: Props) {
   const save = useCallback(async () => {
     if (!title.trim() || !content.trim()) { alert('标题和内容不能为空'); return; }
     setSaving(true);
-    const body = { title, content, excerpt, tags: tags.split(',').map(t=>t.trim()).filter(Boolean), cover, published };
+    const body = {
+      title, content, excerpt,
+      tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+      cover, published,
+    };
     const res = await fetch(id ? '/api/admin/posts/' + id : '/api/admin/posts', {
-      method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body),
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     });
     setSaving(false);
     if (!res.ok) { const e = await res.json().catch(()=>({})); alert(e.error || '保存失败'); return; }
@@ -89,7 +104,6 @@ export default function PostEditor({ id, initial }: Props) {
     if (url) setCover(url);
   }
 
-  // 拖拽上传图片到正文
   async function onDrop(e: React.DragEvent) {
     e.preventDefault(); setDragging(false);
     const file = e.dataTransfer.files?.[0];
@@ -142,9 +156,7 @@ export default function PostEditor({ id, initial }: Props) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input className="anime-input" placeholder="摘要（可选）" value={excerpt} onChange={e=>setExcerpt(e.target.value)} />
-          <div className="flex items-center gap-2">
-            <input className="anime-input" placeholder="标签，逗号分隔" value={tags} onChange={e=>setTags(e.target.value)} />
-          </div>
+          <input className="anime-input" placeholder="标签，逗号分隔" value={tags} onChange={e=>setTags(e.target.value)} />
         </div>
 
         {tagList.length > 0 && (
@@ -186,7 +198,7 @@ export default function PostEditor({ id, initial }: Props) {
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-[color:var(--aurora)]/10">
+        <div className="flex items-center justify-between pt-3 border-t border-[color:var(--aurora)]/10">
           <div className="flex items-center gap-4 text-xs">
             <span className="opacity-60">📊 {wordCount} 字 · 约 {readTime} 分钟阅读</span>
             <label className="flex items-center gap-2 cursor-pointer">

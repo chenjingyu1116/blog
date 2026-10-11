@@ -2,12 +2,18 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+interface NavLink {
+  name: string;
+  href: string;
+  enabled?: boolean;
+}
+
 export default function SiteClient({ initial }: { initial: any }) {
   const router = useRouter();
   const [site, setSite] = useState<any>(initial);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
-  const [tab, setTab] = useState<'basic' | 'images' | 'social' | 'advanced'>('basic');
+  const [tab, setTab] = useState<'basic' | 'images' | 'social' | 'nav' | 'advanced'>('basic');
 
   function set(path: string[], value: any) {
     const next = JSON.parse(JSON.stringify(site));
@@ -18,6 +24,29 @@ export default function SiteClient({ initial }: { initial: any }) {
     }
     obj[path[path.length - 1]] = value;
     setSite(next);
+  }
+
+  // ---- 导航菜单操作 ----
+  const navLinks: NavLink[] = Array.isArray(site.navLinks) ? site.navLinks : [];
+
+  function updateLink(i: number, patch: Partial<NavLink>) {
+    const next = [...navLinks];
+    next[i] = { ...next[i], ...patch };
+    set(['navLinks'], next);
+  }
+  function addLink() {
+    set(['navLinks'], [...navLinks, { name: '新菜单', href: '/', enabled: true }]);
+  }
+  function removeLink(i: number) {
+    if (!confirm('确定删除「' + navLinks[i].name + '」？')) return;
+    set(['navLinks'], navLinks.filter((_, x) => x !== i));
+  }
+  function moveLink(i: number, dir: 'up' | 'down') {
+    const swap = dir === 'up' ? i - 1 : i + 1;
+    if (swap < 0 || swap >= navLinks.length) return;
+    const next = [...navLinks];
+    [next[i], next[swap]] = [next[swap], next[i]];
+    set(['navLinks'], next);
   }
 
   async function save() {
@@ -46,6 +75,7 @@ export default function SiteClient({ initial }: { initial: any }) {
           { k: 'basic', l: '基础信息' },
           { k: 'images', l: '图片资源' },
           { k: 'social', l: '社交链接' },
+          { k: 'nav', l: '导航菜单' },
           { k: 'advanced', l: '高级' },
         ].map(t => (
           <button key={t.k} type="button" onClick={() => setTab(t.k as any)}
@@ -59,6 +89,7 @@ export default function SiteClient({ initial }: { initial: any }) {
       </div>
 
       <div className="rounded-2xl p-6 space-y-4" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>
+
         {tab === 'basic' && <>
           <Field label="站点标题"><input value={site.title || ''} onChange={e => set(['title'], e.target.value)} style={inp} /></Field>
           <Field label="作者名"><input value={site.authorName || ''} onChange={e => set(['authorName'], e.target.value)} style={inp} /></Field>
@@ -96,6 +127,36 @@ export default function SiteClient({ initial }: { initial: any }) {
           </div>
         </>}
 
+        {tab === 'nav' && <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 12, opacity: 0.6 }}>共 {navLinks.length} 个菜单项 · 拖动 ↑↓ 调整顺序</div>
+            <button type="button" onClick={addLink} className="anime-btn-ghost text-xs">＋ 新增菜单</button>
+          </div>
+
+          {navLinks.length === 0 && (
+            <p style={{ textAlign: 'center', opacity: 0.5, padding: 24, fontSize: 13 }}>暂无菜单，点右上角新增</p>
+          )}
+
+          {navLinks.map((link, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '10px 12px', borderRadius: 12, background: 'rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <input type="checkbox" checked={link.enabled !== false} onChange={e => updateLink(i, { enabled: e.target.checked })} style={{ width: 16, height: 16, cursor: 'pointer' }} />
+              <input value={link.name} onChange={e => updateLink(i, { name: e.target.value })} placeholder="名称" style={{ ...inp, flex: 1, minWidth: 80 }} />
+              <input value={link.href} onChange={e => updateLink(i, { href: e.target.value })} placeholder="/path 或 https://..." style={{ ...inp, flex: 2, minWidth: 120, fontFamily: 'monospace' }} />
+              <button type="button" onClick={() => moveLink(i, 'up')} disabled={i === 0} style={iconBtn}>↑</button>
+              <button type="button" onClick={() => moveLink(i, 'down')} disabled={i === navLinks.length - 1} style={iconBtn}>↓</button>
+              <button type="button" onClick={() => removeLink(i)} style={{ ...iconBtn, color: '#ef4444' }}>×</button>
+            </div>
+          ))}
+
+          <p style={{ fontSize: 11, opacity: 0.5, marginTop: 12, lineHeight: 1.6 }}>
+            💡 提示：<br />
+            • 站内链接写路径：`/about`、`/tools`<br />
+            • 外部链接写完整地址：`https://example.com`<br />
+            • 取消勾选可临时隐藏，但保留配置<br />
+            • 保存后前台导航立即更新（可能需要刷新）
+          </p>
+        </>}
+
         {tab === 'advanced' && <>
           <Field label="弹幕列表（每行一条）">
             <textarea value={(site.danmakuList || []).join('\n')} onChange={e => set(['danmakuList'], e.target.value.split('\n').map((s: string) => s.trim()).filter(Boolean))} rows={8} style={{ ...inp, resize: 'vertical' }} />
@@ -123,6 +184,13 @@ const inp: React.CSSProperties = {
   background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
   color: '#fff', fontSize: 13, outline: 'none',
 };
+
+const iconBtn: React.CSSProperties = {
+  width: 32, height: 32, borderRadius: 8,
+  background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
+  color: '#fff', fontSize: 14, cursor: 'pointer', flexShrink: 0,
+};
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div style={{ marginBottom: 14 }}><label style={{ display: 'block', fontSize: 12, fontWeight: 700, opacity: 0.7, marginBottom: 6 }}>{label}</label>{children}</div>;
 }

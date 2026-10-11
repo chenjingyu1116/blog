@@ -19,9 +19,11 @@ import PageTransition from '../../components/PageTransition';
 import AboutClient from '../../components/AboutClient';
 import { Suspense } from 'react';
 
-// ⭐ 统一判断"是否已发布"
+// ⭐ 统一判断"是否已发布"（含定时发布判断）
 function isPublished(data: any) {
-  return data.published !== false && data.draft !== true;
+  return data.published !== false
+    && data.draft !== true
+    && (!data.publishAt || new Date(data.publishAt) <= new Date());
 }
 
 function getDirActivities(dirName: string, typeLabel: '文章' | '杂谈' | '说说', linkPrefix: string) {
@@ -35,7 +37,7 @@ function getDirActivities(dirName: string, typeLabel: '文章' | '杂谈' | '说
       const content = fs.readFileSync(path.join(dirPath, file), 'utf8');
       const { data } = matter(content);
 
-      // ⭐ 草稿不显示在活动记录里
+      // ⭐ 草稿 / 定时未到 不显示在活动记录里
       if (!isPublished(data)) return null;
 
       return {

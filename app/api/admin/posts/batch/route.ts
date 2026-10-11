@@ -3,6 +3,15 @@ import { getPost, savePost, deletePost } from '@/lib/posts';
 
 export const runtime = 'nodejs';
 
+// ⭐ 安全解码：URL 编码过就解码，没有就原样返回
+function safeDecode(id: string) {
+  try {
+    return decodeURIComponent(id);
+  } catch {
+    return id;
+  }
+}
+
 export async function POST(req: Request) {
   let body: any;
   try {
@@ -17,7 +26,8 @@ export async function POST(req: Request) {
   }
 
   let count = 0;
-  for (const id of ids) {
+  for (const rawId of ids) {
+    const id = safeDecode(rawId);   // ⭐ 加这一行
     try {
       if (action === 'delete') {
         await deletePost(id);

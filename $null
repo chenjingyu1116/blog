@@ -1,1 +1,3 @@
-fatal: pathspec 'public\uploads' did not match any files
+error: the following file has local modifications:
+    $null
+(use --cached to keep the file, or -f to force removal)

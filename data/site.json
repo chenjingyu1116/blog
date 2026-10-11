@@ -148,5 +148,22 @@
       "href": "/about",
       "enabled": true
     }
-  ]
+  ],
+  "catConfig": {
+    "enabled": true,
+    "barkInterval": 20,
+    "barkChance": 20,
+    "randomBarks": [
+      "喵呜~ 今天天气真不错喵~",
+      "好困哦，想睡觉喵...",
+      "铲屎官，快去敲代码！",
+      "我的小鱼干藏哪里去了？",
+      "怎么没人理本喵..."
+    ],
+    "petReply": "呼噜噜... 摸得本喵很舒服喵~",
+    "feedSuccessPrefix": "嗷呜！真好吃喵！本喵吃饱了要说两句...",
+    "feedErrorReply": "吧唧吧唧... 鱼干好吃，但本喵卡壳了喵...",
+    "thinkingReply": "让本喵想想喵...",
+    "chatErrorReply": "铲屎官的网线被老鼠咬断了吧？喵！"
+  }
 }

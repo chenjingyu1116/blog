@@ -31,6 +31,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <Link href="/admin/tools"><span>◆</span> 工具</Link>
           <Link href="/admin/shortlinks"><span>◆</span> 短链</Link>
           <Link href="/admin/uploads"><span>◆</span> 图片</Link>
+		  <Link href="/admin/cat"><span>◆</span> 猫猫设置</Link>
           <Link href="/admin/site"><span>◆</span> 站点设置</Link>
           <Link href="/admin/stats"><span>◆</span> 访问统计</Link>
           <Link href="/admin/backup"><span>◆</span> 备份</Link>

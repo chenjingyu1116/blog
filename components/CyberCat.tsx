@@ -3,7 +3,68 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+interface CatConfig {
+  enabled?: boolean;
+  barkInterval?: number;
+  barkChance?: number;
+  randomBarks?: string[];
+  petReply?: string;
+  feedSuccessPrefix?: string;
+  feedErrorReply?: string;
+  thinkingReply?: string;
+  chatErrorReply?: string;
+}
+
+const DEFAULT_CONFIG: CatConfig = {
+  enabled: true,
+  barkInterval: 20,
+  barkChance: 20,
+  randomBarks: [
+    "喵呜~ 今天天气真不错喵~",
+    "好困哦，想睡觉喵...",
+    "铲屎官，快去敲代码！",
+    "我的小鱼干藏哪里去了？",
+    "怎么没人理本喵...",
+  ],
+  petReply: "呼噜噜... 摸得本喵很舒服喵~",
+  feedSuccessPrefix: "嗷呜！真好吃喵！本喵吃饱了要说两句...",
+  feedErrorReply: "吧唧吧唧... 鱼干好吃，但本喵卡壳了喵...",
+  thinkingReply: "让本喵想想喵...",
+  chatErrorReply: "铲屎官的网线被老鼠咬断了吧？喵！",
+};
+
+// ⭐ 数据清理：防止脏数据导致崩溃
+function sanitizeConfig(raw: any): CatConfig {
+  const cfg: CatConfig = { ...DEFAULT_CONFIG };
+  if (typeof raw !== 'object' || !raw) return cfg;
+
+  if (typeof raw.enabled === 'boolean') cfg.enabled = raw.enabled;
+
+  if (Array.isArray(raw.randomBarks)) {
+    const cleaned = raw.randomBarks.filter((s: any) => typeof s === 'string' && s.trim().length > 0);
+    if (cleaned.length > 0) cfg.randomBarks = cleaned;
+  }
+
+  const num = (v: any, def: number, min: number, max: number) => {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return def;
+    return Math.min(max, Math.max(min, n));
+  };
+  cfg.barkInterval = num(raw.barkInterval, 20, 5, 3600);
+  cfg.barkChance = num(raw.barkChance, 20, 1, 100);
+
+  const str = (v: any, def: string) => (typeof v === 'string' && v.trim()) ? v : def;
+  cfg.petReply = str(raw.petReply, DEFAULT_CONFIG.petReply!);
+  cfg.feedSuccessPrefix = str(raw.feedSuccessPrefix, DEFAULT_CONFIG.feedSuccessPrefix!);
+  cfg.feedErrorReply = str(raw.feedErrorReply, DEFAULT_CONFIG.feedErrorReply!);
+  cfg.thinkingReply = str(raw.thinkingReply, DEFAULT_CONFIG.thinkingReply!);
+  cfg.chatErrorReply = str(raw.chatErrorReply, DEFAULT_CONFIG.chatErrorReply!);
+
+  return cfg;
+}
+
 export default function CyberCat() {
+  const [config, setConfig] = useState<CatConfig>(DEFAULT_CONFIG);
   const [isPetted, setIsPetted] = useState(false);
   const [speech, setSpeech] = useState<string | null>(null);
   const [showInput, setShowInput] = useState(false);
@@ -11,6 +72,16 @@ export default function CyberCat() {
   const [isThinking, setIsThinking] = useState(false);
 
   const chatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // ⭐ 从后台 API 加载配置（带数据清理）
+  useEffect(() => {
+    fetch('/api/site/cat')
+      .then(r => r.json())
+      .then((data: CatConfig) => {
+        setConfig(sanitizeConfig(data));
+      })
+      .catch(() => {});
+  }, []);
 
   // --- 💬 说话功能 ---
   const speak = (text: string, duration = 6000) => {
@@ -25,7 +96,7 @@ export default function CyberCat() {
   const handlePetCat = () => {
     if (isPetted) return;
     setIsPetted(true);
-    speak("呼噜噜... 摸得本喵很舒服喵~", 2000);
+    speak(config.petReply || DEFAULT_CONFIG.petReply!, 2000);
     setTimeout(() => {
       setIsPetted(false);
     }, 2000);
@@ -33,12 +104,12 @@ export default function CyberCat() {
 
   // --- 🐟 交互事件：喂小鱼干 ---
   const handleFeed = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // 阻止触发摸猫或拖拽
+    e.stopPropagation();
     if (isThinking) return;
 
-    setShowInput(false); // 喂食时关掉输入框
+    setShowInput(false);
     setIsThinking(true);
-    speak("嗷呜！真好吃喵！本喵吃饱了要说两句...", 6000);
+    speak(config.feedSuccessPrefix || DEFAULT_CONFIG.feedSuccessPrefix!, 6000);
 
     try {
       const res = await fetch('/api/chat', {
@@ -52,7 +123,7 @@ export default function CyberCat() {
       const data = await res.json();
       speak(data.reply, 8000);
     } catch (error) {
-      speak("吧唧吧唧... 鱼干好吃，但本喵卡壳了喵...", 4000);
+      speak(config.feedErrorReply || DEFAULT_CONFIG.feedErrorReply!, 4000);
     } finally {
       setIsThinking(false);
     }
@@ -67,7 +138,7 @@ export default function CyberCat() {
     setInputValue('');
     setShowInput(false);
     setIsThinking(true);
-    speak("让本喵想想喵...", 10000);
+    speak(config.thinkingReply || DEFAULT_CONFIG.thinkingReply!, 10000);
 
     try {
       const res = await fetch('/api/chat', {
@@ -81,7 +152,7 @@ export default function CyberCat() {
       const data = await res.json();
       speak(data.reply, 8000);
     } catch (error) {
-      speak("铲屎官的网线被老鼠咬断了吧？喵！", 4000);
+      speak(config.chatErrorReply || DEFAULT_CONFIG.chatErrorReply!, 4000);
     } finally {
       setIsThinking(false);
     }
@@ -89,23 +160,25 @@ export default function CyberCat() {
 
   // --- ⏳ 随机挂机语录 ---
   useEffect(() => {
-    const randomBarks = [
-      "喵呜~ 今天天气真不错喵~",
-      "好困哦，想睡觉喵...",
-      "铲屎官，快去敲代码！",
-      "我的小鱼干藏哪里去了？",
-      "怎么没人理本喵...",
-    ];
+    const barks = (config.randomBarks && config.randomBarks.length > 0)
+      ? config.randomBarks
+      : DEFAULT_CONFIG.randomBarks!;
+
+    const intervalMs = (config.barkInterval || 20) * 1000;
+    const chance = (config.barkChance || 20) / 100;
+
     const randomTalkInterval = setInterval(() => {
-      if (!speech && !showInput && !isThinking && Math.random() > 0.8) {
-        const randomMsg = randomBarks[Math.floor(Math.random() * randomBarks.length)];
+      if (!speech && !showInput && !isThinking && Math.random() < chance) {
+        const randomMsg = barks[Math.floor(Math.random() * barks.length)];
         speak(randomMsg, 4000);
       }
-    }, 20000);
+    }, intervalMs);
 
     return () => clearInterval(randomTalkInterval);
-  }, [speech, showInput, isThinking]);
+  }, [speech, showInput, isThinking, config.randomBarks, config.barkInterval, config.barkChance]);
 
+  // ⭐ 后台关闭时，直接不渲染
+  if (config.enabled === false) return null;
 
   return (
     <motion.div
@@ -135,37 +208,30 @@ export default function CyberCat() {
 
       {/* 🐈 猫咪本体 & 交互按钮区 */}
       <div className="relative">
-
-        {/* 🌟 核心修改区：去掉了 opacity-0 和 group-hover，让按钮常驻显示 */}
         <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowInput(!showInput);
+            }}
+            className="bg-white/90 dark:bg-slate-700/90 p-2.5 rounded-full shadow-md hover:scale-110 active:scale-95 transition-transform border border-gray-100 dark:border-slate-600 text-blue-500 hover:text-blue-600 flex items-center justify-center backdrop-blur-sm"
+            title="聊天"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+              <path fillRule="evenodd" d="M4.804 21.644A6.707 6.707 0 006 21.75a6.721 6.721 0 003.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 01-.814 1.686.75.75 0 00.44 1.223zM8.25 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM10.875 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clipRule="evenodd" />
+            </svg>
+          </button>
 
-            {/* 💬 聊天按钮 */}
-            <button
-              onClick={(e) => {
-                 e.stopPropagation();
-                 setShowInput(!showInput);
-              }}
-              // 稍微加了一点半透明背景，让常驻按钮在深色背景下也好看
-              className="bg-white/90 dark:bg-slate-700/90 p-2.5 rounded-full shadow-md hover:scale-110 active:scale-95 transition-transform border border-gray-100 dark:border-slate-600 text-blue-500 hover:text-blue-600 flex items-center justify-center backdrop-blur-sm"
-              title="聊天"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                <path fillRule="evenodd" d="M4.804 21.644A6.707 6.707 0 006 21.75a6.721 6.721 0 003.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 01-.814 1.686.75.75 0 00.44 1.223zM8.25 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM10.875 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clipRule="evenodd" />
-              </svg>
-            </button>
-
-            {/* 🐟 喂食按钮 */}
-            <button
-              onClick={handleFeed}
-              disabled={isThinking}
-              className={`bg-white/90 dark:bg-slate-700/90 p-2.5 rounded-full shadow-md hover:scale-110 active:scale-95 transition-transform border border-gray-100 dark:border-slate-600 flex items-center justify-center backdrop-blur-sm ${isThinking ? 'opacity-50 cursor-not-allowed' : ''}`}
-              title="喂小鱼干"
-            >
-              <span className="text-xl leading-none">🐟</span>
-            </button>
+          <button
+            onClick={handleFeed}
+            disabled={isThinking}
+            className={`bg-white/90 dark:bg-slate-700/90 p-2.5 rounded-full shadow-md hover:scale-110 active:scale-95 transition-transform border border-gray-100 dark:border-slate-600 flex items-center justify-center backdrop-blur-sm ${isThinking ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title="喂小鱼干"
+          >
+            <span className="text-xl leading-none">🐟</span>
+          </button>
         </div>
 
-        {/* 猫咪图片容器 */}
         <div
           className="w-[120px] h-[120px] relative cursor-pointer"
           onClick={handlePetCat}

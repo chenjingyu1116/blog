@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import MarkdownPreview from './MarkdownPreview';
+import AIAssistant from './AIAssistant';
 
 const DRAFT_KEY = 'xh-post-draft';
 
@@ -30,6 +31,35 @@ export default function PostEditor({ id, initial }: Props) {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [dragging, setDragging] = useState(false);
   const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  // ⭐ 获取 textarea 里选中的文字
+  function getSelected(): string {
+    const ta = contentRef.current;
+    if (!ta) return '';
+    return content.slice(ta.selectionStart, ta.selectionEnd);
+  }
+
+  // ⭐ 把 AI 结果插入到光标处
+  function insertAtCursor(text: string) {
+    const ta = contentRef.current;
+    if (!ta) {
+      setContent(c => c + '\n\n' + text);
+      return;
+    }
+    const pos = ta.selectionStart;
+    const next = content.slice(0, pos) + '\n\n' + text + '\n\n' + content.slice(pos);
+    setContent(next);
+  }
+
+  // ⭐ 替换 textarea 里选中的文字
+  function replaceSelection(text: string) {
+    const ta = contentRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const next = content.slice(0, start) + text + content.slice(end);
+    setContent(next);
+  }
 
   // 自动保存草稿
   useEffect(() => {
@@ -212,6 +242,14 @@ export default function PostEditor({ id, initial }: Props) {
           </div>
         </div>
       </div>
+
+      {/* ⭐ 猫猫写作助手 */}
+      <AIAssistant
+        content={content}
+        onInsert={insertAtCursor}
+        onReplaceSelection={replaceSelection}
+        getSelected={getSelected}
+      />
     </div>
   );
 }

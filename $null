@@ -1,1 +1,1 @@
-fatal: pathspec 'public/uploads' did not match any files
+fatal: pathspec 'public\uploads' did not match any files

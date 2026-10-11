@@ -53,7 +53,9 @@ export default function Home() {
           date: rawDate,
           formattedDate: formatUpdateTime(rawDate)
         };
-      }).sort((a, b) => {
+      })
+      .filter((p: any) => p.published !== false && p.draft !== true)
+      .sort((a, b) => {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
         if (dateB !== dateA) return dateB - dateA;
@@ -74,7 +76,9 @@ export default function Home() {
         const rawDate = data.date || '1970-01-01';
         const cover = data.cover || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop';
         return { slug: fileName.replace(/\.md$/, ''), title: data.title || '碎片记录', description: data.description || content.substring(0, 60), cover: cover, date: rawDate, formattedDate: formatUpdateTime(rawDate) };
-      }).sort((a, b) => {
+      })
+      .filter((p: any) => p.published !== false && p.draft !== true)
+      .sort((a, b) => {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
         if (dateB !== dateA) return dateB - dateA;

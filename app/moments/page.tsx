@@ -11,11 +11,15 @@ export const metadata = {
   description: "生活动态与瞬间记录",
 };
 
+// ⭐ 统一判断"是否已发布"
+function isPublished(data: any) {
+  return data.published !== false && data.draft !== true;
+}
+
 export default function MomentsPage() {
   let allMoments: any[] = [];
 
   try {
-    // 🌟 终极防漏绝招：同时扫描两个可能的文件夹，把所有的说说都抓出来！
     const possibleDirs = [
       path.join(process.cwd(), 'posts', 'moments'),
       path.join(process.cwd(), 'moments')
@@ -28,6 +32,9 @@ export default function MomentsPage() {
           const fullPath = path.join(dir, fileName);
           const { data, content } = matter(fs.readFileSync(fullPath, 'utf8'));
 
+          // ⭐ 草稿不显示
+          if (!isPublished(data)) return;
+
           allMoments.push({
             id: fileName.replace(/\.md$/, ''),
             date: data.date || '1970-01-01',
@@ -39,7 +46,6 @@ export default function MomentsPage() {
       }
     });
 
-    // 去重，防止你在两个文件夹放了同名文件
     allMoments = Array.from(new Map(allMoments.map(item => [item.id, item])).values());
 
   } catch (e) {

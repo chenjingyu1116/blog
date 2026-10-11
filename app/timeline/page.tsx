@@ -5,12 +5,15 @@ import Navbar from '../../components/Navbar';
 import PageTransition from '../../components/PageTransition';
 import { siteConfig } from '../../siteConfig';
 import TimelineClient from '../../components/TimelineClient';
-// 🌟 1. 引入 ToastProvider 喵！
 import { ToastProvider } from '../../components/ToastProvider';
 
 export const metadata = {
   title: "归档与探索 | " + siteConfig.title,
 };
+
+function isPublished(data: any) {
+  return data.published !== false && data.draft !== true;
+}
 
 export default function Timeline() {
   const postsDirectory = path.join(process.cwd(), 'posts');
@@ -27,6 +30,9 @@ export default function Timeline() {
 
         const fileContents = fs.readFileSync(fullPath, 'utf8');
         const { data } = matter(fileContents);
+
+        // ⭐ 草稿不显示，标签也不统计
+        if (!isPublished(data)) return;
 
         const postTags = data.tags && Array.isArray(data.tags) ? data.tags : ['未分类'];
 
@@ -58,7 +64,6 @@ export default function Timeline() {
     .sort((a, b) => b.count - a.count);
 
   return (
-    // 🌟 2. 在最外层用 ToastProvider 包裹整个页面
     <ToastProvider>
       <div className="min-h-screen relative pb-32">
         <Navbar />

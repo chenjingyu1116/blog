@@ -1,0 +1,16 @@
+.admin-shell { display:flex; min-height:100vh; position:relative; z-index:10; padding-bottom:150px; }
+.admin-sidebar { width:250px; flex-shrink:0; padding:1.25rem; display:flex; flex-direction:column; }
+.admin-brand { display:flex; align-items:center; gap:12px; margin-bottom:2rem; padding-bottom:1rem; border-bottom:1px solid rgba(157,78,255,0.25); }
+.admin-logo { width:52px; height:52px; border-radius:2px; display:grid; place-items:center; font-weight:900; font-size:0.95rem; color:#050819; background:linear-gradient(135deg,#00e8c8,#9d4eff); border:2px solid #fff; box-shadow:0 0 22px rgba(0,232,200,0.7); letter-spacing:0.05em; clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); }
+.admin-title-text { font-weight:900; font-size:1.05rem; color:#fff; text-shadow:0 0 12px rgba(157,78,255,0.7); letter-spacing:0.15em; }
+.admin-sub { font-size:0.6rem; color:rgba(0,232,200,0.75); font-weight:700; letter-spacing:0.2em; margin-top:3px; }
+.admin-nav { flex:1; display:flex; flex-direction:column; gap:6px; }
+.admin-nav a { display:flex; align-items:center; gap:12px; padding:11px 14px; font-weight:700; }
+.nav-dot { display:inline-block; width:6px; height:6px; background:rgba(0,232,200,0.5); box-shadow:0 0 6px rgba(0,232,200,0.8); transition:all 0.15s; flex-shrink:0; }
+.admin-nav a:hover .nav-dot { background:var(--dal-cyan); box-shadow:0 0 12px var(--dal-cyan); transform:scale(1.4); }
+.admin-logout { margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(157,78,255,0.2); }
+.admin-logout button { width:100%; text-align:left; padding:11px 14px; font-weight:700; font-size:0.82rem; color:rgba(224,232,255,0.6); background:transparent; border:1.5px solid transparent; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:12px; transition:all 0.15s; letter-spacing:0.08em; border-radius:2px; }
+.admin-logout button:hover { color:#ff8a9b; border-color:rgba(255,78,91,0.4); background:rgba(255,78,91,0.08); text-shadow:0 0 10px rgba(255,78,91,0.6); }
+.admin-logout button:hover .nav-dot { background:#ff4e5b; box-shadow:0 0 12px #ff4e5b; }
+.admin-copy { font-size:9px; color:rgba(157,78,255,0.55); text-align:center; margin-top:1rem; font-weight:700; letter-spacing:0.25em; }
+.admin-main { flex:1; padding:2rem; overflow-y:auto; position:relative; z-index:10; }

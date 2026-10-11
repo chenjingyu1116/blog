@@ -23,6 +23,7 @@ import ClientTOC from '../../../components/ClientTOC';
 import BackButton from '../../../components/BackButton';
 import Comments from '../../../components/Comments';
 import SidebarLyric from '../../../components/SidebarLyric';
+import PostViewTracker from '../../../components/PostViewTracker';
 
 function isPublished(data: any) {
   return data.published !== false && data.draft !== true;
@@ -66,7 +67,6 @@ function extractToc(content: string) {
 async function getPostData(slug: string) {
   const fullPath = path.join(process.cwd(), 'posts', `${slug}.md`);
 
-  // ⭐ 文件不存在 → 直接 404，不再崩溃
   let fileContents: string;
   try {
     fileContents = fs.readFileSync(fullPath, 'utf8');
@@ -76,7 +76,6 @@ async function getPostData(slug: string) {
 
   let { data, content } = matter(fileContents);
 
-  // ⭐ 草稿不允许前台访问
   if (!isPublished(data)) {
     notFound();
   }
@@ -144,6 +143,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
 
   return (
     <div className="min-h-screen relative pb-20">
+      <PostViewTracker slug={resolvedParams.slug} />
       <Navbar />
       <PageTransition>
         <main className="w-[95%] md:w-[90%] max-w-6xl mx-auto mt-24 md:mt-28 flex flex-col lg:flex-row gap-6 md:gap-8 relative z-10">

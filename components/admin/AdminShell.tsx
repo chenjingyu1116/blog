@@ -23,11 +23,17 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <nav className="admin-nav">
           <Link href="/admin"><span>◆</span> 主页</Link>
           <Link href="/admin/posts"><span>◆</span> 文章</Link>
-		  <Link href="/admin/shortlinks"><span>◆</span> 短链</Link>
-		  <Link href="/admin/uploads"><span>◆</span> 图片</Link>
-		  <Link href="/admin/backup"><span>◆</span> 备份</Link>
-		  <Link href="/admin/tools"><span>◆</span> 工具</Link>
           <Link href="/admin/posts/new"><span>◆</span> 写作</Link>
+          <Link href="/admin/moments"><span>◆</span> 说说</Link>
+          <Link href="/admin/chatter"><span>◆</span> 杂谈</Link>
+          <Link href="/admin/albums"><span>◆</span> 相册</Link>
+          <Link href="/admin/friends"><span>◆</span> 友链</Link>
+          <Link href="/admin/tools"><span>◆</span> 工具</Link>
+          <Link href="/admin/shortlinks"><span>◆</span> 短链</Link>
+          <Link href="/admin/uploads"><span>◆</span> 图片</Link>
+          <Link href="/admin/site"><span>◆</span> 站点设置</Link>
+          <Link href="/admin/stats"><span>◆</span> 访问统计</Link>
+          <Link href="/admin/backup"><span>◆</span> 备份</Link>
           <Link href="/" target="_blank"><span>◆</span> 博客</Link>
         </nav>
         <form action="/api/admin/logout" method="post" className="admin-logout">

@@ -103,6 +103,44 @@ export default function Home() {
 
             <main className="flex flex-col gap-6 w-full mt-6">
 
+              {/* 🧰 工具箱快捷入口 */}
+              <section className="w-full">
+                <div className="bg-white/60 dark:bg-slate-800/50 backdrop-blur-md rounded-3xl p-6 border border-white/40 dark:border-white/10 shadow-xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-black text-slate-800 dark:text-white">🧰 工具箱</h2>
+                    <Link href="/tools" className="text-xs text-indigo-500 hover:underline font-bold">
+                      全部工具 →
+                    </Link>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                    <Link href="/tools/json" className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/40 dark:bg-slate-900/30 hover:bg-white/60 dark:hover:bg-slate-900/50 transition hover:-translate-y-0.5">
+                      <span className="text-2xl font-black text-indigo-500">{"{ }"}</span>
+                      <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200">JSON</span>
+                    </Link>
+                    <Link href="/tools/color" className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/40 dark:bg-slate-900/30 hover:bg-white/60 dark:hover:bg-slate-900/50 transition hover:-translate-y-0.5">
+                      <span className="text-2xl">🎨</span>
+                      <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200">颜色</span>
+                    </Link>
+                    <Link href="/tools/qrcode" className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/40 dark:bg-slate-900/30 hover:bg-white/60 dark:hover:bg-slate-900/50 transition hover:-translate-y-0.5">
+                      <span className="text-2xl">📱</span>
+                      <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200">二维码</span>
+                    </Link>
+                    <Link href="/tools/password" className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/40 dark:bg-slate-900/30 hover:bg-white/60 dark:hover:bg-slate-900/50 transition hover:-translate-y-0.5">
+                      <span className="text-2xl">🔐</span>
+                      <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200">密码</span>
+                    </Link>
+                    <Link href="/tools/short" className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/40 dark:bg-slate-900/30 hover:bg-white/60 dark:hover:bg-slate-900/50 transition hover:-translate-y-0.5">
+                      <span className="text-2xl">🔗</span>
+                      <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200">短链</span>
+                    </Link>
+                    <Link href="/tools/upload" className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/40 dark:bg-slate-900/30 hover:bg-white/60 dark:hover:bg-slate-900/50 transition hover:-translate-y-0.5">
+                      <span className="text-2xl">☁️</span>
+                      <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200">图床</span>
+                    </Link>
+                  </div>
+                </div>
+              </section>
+
               {/* 第一行：个人信息 + 播放器 */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
                 {/* 手机上占满1列，电脑上占7列 */}

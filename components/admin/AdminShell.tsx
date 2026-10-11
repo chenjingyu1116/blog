@@ -23,6 +23,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <nav className="admin-nav">
           <Link href="/admin"><span>◆</span> 主页</Link>
           <Link href="/admin/posts"><span>◆</span> 文章</Link>
+		  <Link href="/admin/shortlinks"><span>◆</span> 短链</Link>
+		  <Link href="/admin/uploads"><span>◆</span> 图片</Link>
+		  <Link href="/admin/backup"><span>◆</span> 备份</Link>
+		  <Link href="/admin/tools"><span>◆</span> 工具</Link>
           <Link href="/admin/posts/new"><span>◆</span> 写作</Link>
           <Link href="/" target="_blank"><span>◆</span> 博客</Link>
         </nav>

@@ -1,0 +1,12 @@
+{
+  "order": [
+    "json",
+    "color",
+    "time"
+  ],
+  "enabled": {
+    "json": true,
+    "color": true,
+    "time": true
+  }
+}
